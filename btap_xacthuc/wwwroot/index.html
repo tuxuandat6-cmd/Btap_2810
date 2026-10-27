@@ -1,0 +1,676 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Xác Thực JWT & OAuth2 Google | CMC University</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #eff6ff 0%, #f1f5f9 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 780px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding-bottom: 8px;
+        }
+
+            .header .badge-univ {
+                display: inline-block;
+                background: #dbeafe;
+                color: #1e40af;
+                font-size: 12px;
+                font-weight: 700;
+                padding: 6px 14px;
+                border-radius: 999px;
+                margin-bottom: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+                font-weight: 700;
+                color: #0f172a;
+            }
+
+            .header p {
+                color: var(--text-muted);
+                font-size: 14px;
+                margin-top: 6px;
+            }
+
+        /* Card chung */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+
+        /* Quick Account Select */
+        .quick-select {
+            background: #f1f5f9;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .quick-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .quick-btn:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+            }
+
+        /* Input Form */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+            .form-group label {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                margin-bottom: 6px;
+                color: #334155;
+            }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+            .input-wrapper i {
+                position: absolute;
+                left: 14px;
+                color: #94a3b8;
+                font-size: 15px;
+            }
+
+            .input-wrapper input {
+                width: 100%;
+                padding: 12px 14px 12px 42px;
+                border: 1.5px solid var(--border);
+                border-radius: 10px;
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.2s;
+            }
+
+                .input-wrapper input:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+                }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-primary:hover {
+                background: var(--primary-hover);
+            }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+            .divider::before, .divider::after {
+                content: '';
+                flex: 1;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .divider span {
+                padding: 0 14px;
+            }
+
+        /* Google OAuth Button */
+        .btn-google {
+            width: 100%;
+            background: #ffffff;
+            color: #3c4043;
+            border: 1.5px solid #dadce0;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+            .btn-google:hover {
+                background: #f8fafc;
+                border-color: #c2c7d0;
+                box-shadow: 0 1px 3px rgba(60,64,67, 0.15);
+            }
+
+            .btn-google svg {
+                width: 18px;
+                height: 18px;
+            }
+
+        /* Alert / Message */
+        .alert {
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 16px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            display: flex;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: flex;
+        }
+
+        /* Token Info Box */
+        .token-box {
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            max-height: 100px;
+            overflow-y: auto;
+            position: relative;
+            margin-top: 12px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+            .copy-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+        /* Role Badges parsed from Token */
+        .token-meta {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            font-weight: 600;
+        }
+
+            .meta-tag.admin {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .meta-tag.user {
+                background: #e0e7ff;
+                color: #3730a3;
+            }
+
+        /* API Section Actions */
+        .api-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn-api {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: #ffffff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+            .btn-api:hover {
+                border-color: var(--primary);
+                background: #f8fafc;
+            }
+
+            .btn-api .api-title {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 4px;
+            }
+
+            .btn-api .role-required {
+                font-size: 11px;
+                color: var(--text-muted);
+            }
+
+        .btn-logout {
+            width: 100%;
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .btn-logout:hover {
+                background: #fee2e2;
+                color: #b91c1c;
+            }
+
+        /* Response Box */
+        .response-container {
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1.5px solid var(--border);
+            padding: 14px;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 50px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <span class="badge-univ"><i class="fa-solid fa-shield-halved"></i> CMC UNIVERSITY LAB</span>
+            <h1>Hệ Thống Xác Thực & Phân Quyền</h1>
+            <p>Minh họa xác thực JWT Bearer & OAuth2 với Google trên ASP.NET Core</p>
+        </div>
+
+        <!-- Khối 1: Đăng nhập -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-lock" style="color: var(--primary);"></i>
+                1. Đăng nhập hệ thống
+            </div>
+
+            <!-- Điền nhanh -->
+            <div class="quick-select">
+                <span><i class="fa-solid fa-wand-magic-sparkles"></i> Tài khoản mẫu:</span>
+                <div style="display: flex; gap: 8px;">
+                    <button class="quick-btn" onclick="fillAccount('admin', '123456')">Admin (123456)</button>
+                    <button class="quick-btn" onclick="fillAccount('user', '123456')">User (123456)</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tên đăng nhập (Username)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" placeholder="Nhập username..." value="admin">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Mật khẩu (Password)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="password" placeholder="Nhập password..." value="123456">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="handleLogin()">
+                <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập hệ thống
+            </button>
+
+            <div class="divider">
+                <span>HOẶC</span>
+            </div>
+
+            <!-- Google OAuth2 Button -->
+            <a href="/api/auth/login-google" class="btn-google">
+                <svg viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+                Đăng nhập với Google (OAuth2)
+            </a>
+
+            <!-- Thông báo đăng nhập -->
+            <div id="loginAlert" class="alert">
+                <i id="loginAlertIcon" class="fa-solid fa-circle-check"></i>
+                <span id="loginAlertMsg"></span>
+            </div>
+
+            <!-- Token Payload Info Box -->
+            <div id="tokenSection" style="margin-top: 18px; display: none;">
+                <div style="font-size: 13px; font-weight: 600; color: #475569; display: flex; justify-content: space-between;">
+                    <span><i class="fa-solid fa-ticket"></i> JWT Token nhận được:</span>
+                </div>
+
+                <div class="token-box">
+                    <button class="copy-btn" onclick="copyToken()"><i class="fa-regular fa-copy"></i> Copy</button>
+                    <span id="tokenDisplay"></span>
+                </div>
+
+                <!-- Giải mã Claim -->
+                <div class="token-meta" id="tokenMeta"></div>
+            </div>
+        </div>
+
+        <!-- Khối 2: Kiểm tra phân quyền Authorization -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-fingerprint" style="color: var(--primary);"></i>
+                2. Kiểm tra gọi API phân quyền (RBAC)
+            </div>
+
+            <div class="api-grid">
+                <button class="btn-api" onclick="callApi('/api/auth/admin-data')">
+                    <div class="api-title">
+                        <span><i class="fa-solid fa-user-shield" style="color: #ea580c;"></i> Gọi API Admin</span>
+                        <span class="meta-tag admin">Role: Admin</span>
+                    </div>
+                    <div class="role-required">Chỉ tài khoản Admin mới được phép</div>
+                </button>
+
+                <button class="btn-api" onclick="callApi('/api/auth/user-data')">
+                    <div class="api-title">
+                        <span><i class="fa-solid fa-users" style="color: #2563eb;"></i> Gọi API Chung</span>
+                        <span class="meta-tag user">Role: User / Admin</span>
+                    </div>
+                    <div class="role-required">Cả User và Admin đều gọi được</div>
+                </button>
+            </div>
+
+            <button class="btn-logout" onclick="handleLogout()">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất (Hủy Token)
+            </button>
+
+            <div style="margin-top: 16px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Kết quả Server phản hồi:</label>
+                <div id="apiResult" class="response-container">
+                    <span style="color: #94a3b8;">Chưa có yêu cầu nào được gửi đi. Hãy bấm thử gọi API phía trên.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            let currentToken = localStorage.getItem("jwtToken") || "";
+
+            // Tự động kiểm tra Google OAuth2 chuyển hướng về
+            window.onload = function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const googleToken = urlParams.get('token');
+                const user = urlParams.get('user');
+
+                if (googleToken) {
+                    currentToken = googleToken;
+                    localStorage.setItem("jwtToken", currentToken);
+                    showLoginMessage(true, `Đăng nhập Google thành công! Xin chào <b>${user}</b>`);
+                    parseAndRenderToken(currentToken);
+                    window.history.replaceState({}, document.title, "/");
+                } else if (currentToken) {
+                    parseAndRenderToken(currentToken);
+                }
+            };
+
+            function fillAccount(u, p) {
+                document.getElementById('username').value = u;
+                document.getElementById('password').value = p;
+            }
+
+            // Đăng nhập Username/Password
+            async function handleLogin() {
+                const username = document.getElementById("username").value.trim();
+                const password = document.getElementById("password").value.trim();
+
+                if (!username || !password) {
+                    showLoginMessage(false, "Vui lòng nhập đầy đủ Username và Password!");
+                    return;
+                }
+
+                try {
+                    const response = await fetch("/api/auth/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        currentToken = data.token;
+                        localStorage.setItem("jwtToken", currentToken);
+                        showLoginMessage(true, `Đăng nhập thành công! Xin chào <b>${data.username}</b> (Role: <b>${data.role}</b>)`);
+                        parseAndRenderToken(currentToken);
+                    } else {
+                        showLoginMessage(false, data.message || "Đăng nhập thất bại!");
+                    }
+                } catch (err) {
+                    showLoginMessage(false, "Lỗi kết nối tới Server: " + err.message);
+                }
+            }
+
+            function showLoginMessage(isSuccess, message) {
+                const alertBox = document.getElementById("loginAlert");
+                const alertMsg = document.getElementById("loginAlertMsg");
+                const alertIcon = document.getElementById("loginAlertIcon");
+
+                alertBox.className = "alert " + (isSuccess ? "alert-success" : "alert-error");
+                alertIcon.className = "fa-solid " + (isSuccess ? "fa-circle-check" : "fa-circle-exclamation");
+                alertMsg.innerHTML = message;
+                alertBox.style.display = "flex";
+            }
+
+            // Phân tích JWT để hiển thị Role và Username
+            function parseAndRenderToken(token) {
+                const tokenSection = document.getElementById("tokenSection");
+                const tokenDisplay = document.getElementById("tokenDisplay");
+                const tokenMeta = document.getElementById("tokenMeta");
+
+                tokenSection.style.display = "block";
+                tokenDisplay.innerText = token;
+
+                try {
+                    // Decode payload của JWT Token
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                    const payload = JSON.parse(jsonPayload);
+
+                    const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload["role"] || "N/A";
+                    const user = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || payload["unique_name"] || "N/A";
+                    const exp = new Date(payload.exp * 1000).toLocaleTimeString();
+
+                    tokenMeta.innerHTML = `
+                        <span class="meta-tag"><i class="fa-solid fa-user"></i> User: ${user}</span>
+                        <span class="meta-tag ${role.toLowerCase()}"><i class="fa-solid fa-shield"></i> Role: ${role}</span>
+                        <span class="meta-tag"><i class="fa-solid fa-clock"></i> Hết hạn: ${exp}</span>
+                    `;
+                } catch (e) {
+                    tokenMeta.innerHTML = "";
+                }
+            }
+
+            // Gọi API kèm Token
+            async function callApi(endpoint) {
+                const apiResultEl = document.getElementById("apiResult");
+                apiResultEl.innerHTML = `<span style="color: #2563eb;"><i class="fa-solid fa-spinner fa-spin"></i> Đang gửi yêu cầu...</span>`;
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: "GET",
+                        headers: { "Authorization": "Bearer " + currentToken }
+                    });
+
+                    if (response.status === 200) {
+                        const data = await response.json();
+                        apiResultEl.innerHTML = `
+                            <div style="color: var(--success); font-weight: 700; margin-bottom: 4px;">
+                                <i class="fa-solid fa-circle-check"></i> HTTP 200 OK (Authorized)
+                            </div>
+                            <div>${data.message}</div>
+                        `;
+                    } else if (response.status === 403) {
+                        apiResultEl.innerHTML = `
+                            <div style="color: var(--danger); font-weight: 700; margin-bottom: 4px;">
+                                <i class="fa-solid fa-ban"></i> HTTP 403 Forbidden
+                            </div>
+                            <div>Không có quyền truy cập chức năng này (Role của Token không khớp)!</div>
+                        `;
+                    } else if (response.status === 401) {
+                        apiResultEl.innerHTML = `
+                            <div style="color: var(--warning); font-weight: 700; margin-bottom: 4px;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> HTTP 401 Unauthorized
+                            </div>
+                            <div>Chưa xác thực: Bạn chưa đăng nhập hoặc Token đã hết hạn!</div>
+                        `;
+                    }
+                } catch (err) {
+                    apiResultEl.innerHTML = `<span style="color: var(--danger);"><i class="fa-solid fa-bug"></i> Lỗi: ${err.message}</span>`;
+                }
+            }
+
+            function copyToken() {
+                if (!currentToken) return;
+                navigator.clipboard.writeText(currentToken);
+                alert("Đã sao chép JWT Token vào clipboard!");
+            }
+
+            function handleLogout() {
+                currentToken = "";
+                localStorage.removeItem("jwtToken");
+                document.getElementById("tokenSection").style.display = "none";
+                document.getElementById("loginAlert").style.display = "none";
+                document.getElementById("apiResult").innerHTML = `<span style="color: #94a3b8;">Đã xóa Token. Bạn đang ở trạng thái chưa đăng nhập.</span>`;
+            }
+    </script>
+
+</body>
+</html>
